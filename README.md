@@ -61,9 +61,9 @@ events {
 stream {
 
     upstream stream_backend {
-        server 165.22.34.56:33092;
-        server 165.22.33.154:33092;
-        server 167.71.84.15:33092;
+        server ucp.dockr.life:33092;
+        server ucp2.dockr.life:33092;
+        server ucp3.dockr.life:33092;
     }
 
     server {
