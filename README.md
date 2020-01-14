@@ -4,7 +4,7 @@
 
 ### Setup your cluster
 
-I use [github/clemenko/ucp](https://github.com/clemenko/ucp) for building Docker Enterprise. Honestly any k8s distro should work. 
+I use [github/clemenko/ucp](https://github.com/clemenko/ucp) for building Docker Enterprise. Honestly any k8s distro should work.
 
 ### deploy traefik
 
@@ -12,7 +12,7 @@ deploy
 
 `kubectl apply -f traefik_ingress_controller.yml`
 
-example : 
+example :
 
 ```bash
 clemenko@clemenko traefik_webinar % kubectl apply -f traefik_ingress_controller.yml
@@ -84,7 +84,7 @@ deploy
 
 `kubectl apply -f prometheus/. `
 
-example : 
+example :
 
 ```bash
 clemenko@clemenko traefik_webinar % kubectl apply -f prometheus/. 
@@ -130,7 +130,7 @@ Out of the box I have included a few handy dashboards. Check out the `Kube - Clu
 
 The prometheus dashboard can be found at [prom.dockr.life](prom.dockr.life).
 
-You can also check the `routers` that Traefik knows about by exploring the `Routers` page. 
+You can also check the `routers` that Traefik knows about by exploring the `Routers` page.
 
 ![routers](imgs/routers.jpg)
 
@@ -141,8 +141,7 @@ You can also check the `routers` that Traefik knows about by exploring the `Rout
 Now check the Traefik `Router`.
 
 
-## Check our StackRox!
-
+## Check our StackRox
 
 ## Caveats
 
