@@ -1,4 +1,4 @@
-# Collection of yamls for a Traefik Webinar
+# Traefik Webinar
 
 ## Setup and Install
 
