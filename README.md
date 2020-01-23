@@ -10,7 +10,9 @@ I use [github/clemenko/ucp](https://github.com/clemenko/ucp) for building Docker
 
 deploy
 
-`kubectl apply -f traefik_ingress_controller.yml`
+```bash
+kubectl apply -f traefik_ingress_controller.yml
+```
 
 example :
 
@@ -28,7 +30,7 @@ ingress.networking.k8s.io/traefik-ingress created
 Get dashboard port for traefik and navigate there
 
 ```bash
-kubectl get svc -n ingress-traefik traefik-ingress-service -o=jsonpath='{.spec.ports[?(@.port==8080)].nodePort}'
+kubectl get svc -n ingress-traefik traefik-ingress-service -o=jsonpath='{.spec.ports[?(@.port==8080)].nodePort}'; echo ""
 ```
 
 The output was port 33981, so navigate to any node in the cluster on port 33981.
@@ -37,7 +39,13 @@ The output was port 33981, so navigate to any node in the cluster on port 33981.
 
 ### Setup loadblaancer
 
-Here is an example of running an nginx load balancer on another node. Ideally use your cloud providers' lb serivce. Note the IPs in the conf. They point to the three managers nodes of the cluster.
+Here is an example of running an nginx load balancer on another node. Ideally use your cloud providers' lb serivce. Note the IPs in the conf. They point to the three managers nodes of the cluster. Make sure you change the port for the backend servers to the correct NodePort for Traefik. You can find it with the following command.
+
+```bash
+kubectl get svc -n ingress-traefik traefik-ingress-service -o=jsonpath='{.spec.ports[?(@.port==80)].nodePort}'; echo ""
+```
+
+And then the setup itself.
 
 ```bash
 yum install -y yum-utils vim
@@ -61,9 +69,9 @@ events {
 stream {
 
     upstream stream_backend {
-        server ucp.dockr.life:33092;
-        server ucp2.dockr.life:33092;
-        server ucp3.dockr.life:33092;
+        server ucp.dockr.life:XXXX max_fails=3 fail_timeout=2s;
+        server ucp2.dockr.life:XXXX max_fails=3 fail_timeout=2s;
+        server ucp3.dockr.life:XXXX max_fails=3 fail_timeout=2s;
     }
 
     server {
@@ -82,7 +90,9 @@ docker run --rm -d -p 80:80 -v /root/stream.conf:/etc/nginx/nginx.conf:ro nginx:
 
 deploy
 
-`kubectl apply -f prometheus/. `
+```bash
+kubectl apply -f prometheus/.
+```
 
 example :
 
@@ -136,10 +146,11 @@ You can also check the `routers` that Traefik knows about by exploring the `Rout
 
 ### Deploy a few apps
 
-`kubectl apply -f k8s_all_the_things.yml`
+```bash
+kubectl apply -f k8s_all_the_things.yml
+```
 
 Now check the Traefik `Router`.
-
 
 ## Check our StackRox
 

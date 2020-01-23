@@ -29,9 +29,10 @@ spec:
     spec:
       containers:
       - name: flask
-        image: clemenko/simple
+        image: clemenko/flask_demo
         ports:
         - containerPort: 5000
+        imagePullPolicy: Always
 ---
 apiVersion: apps/v1
 kind: Deployment
