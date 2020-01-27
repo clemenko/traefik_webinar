@@ -4,13 +4,23 @@
 
 ### Setup your cluster
 
-I use [github/clemenko/ucp](https://github.com/clemenko/ucp) for building Docker Enterprise. Honestly any k8s distro should work.
+I use [github/clemenko/ucp](https://github.com/clemenko/ucp) for building Docker Enterprise. Honestly any k8s distribution should work.
+
+### label ingress nodes
+
+The idea is to label the specific ingress nodes you want to use. This will allow for an easier setup of the external load balancer and create the fastest path to the pod.
+
+```bash
+kubectl label nodes ddc-bc41 ddc-a12c ddc-8393 traefik=ingress
+```
 
 ### deploy traefik
 
 deploy
 
 ```bash
+git clone https://github.com/clemenko/traefik_webinar
+cd traefik_webinar
 kubectl apply -f traefik_ingress_controller.yml
 ```
 

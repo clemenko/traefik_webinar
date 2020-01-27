@@ -108,6 +108,8 @@ spec:
     spec:
       serviceAccountName: ingress-traefik
       terminationGracePeriodSeconds: 60
+      nodeSelector:
+        traefik: ingress
       containers:
       - image: traefik
         name: traefik-ingress-lb
