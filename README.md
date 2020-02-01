@@ -6,7 +6,7 @@
 
 I use [github/clemenko/ucp](https://github.com/clemenko/ucp) for building Docker Enterprise. Honestly any k8s distribution should work.
 
-### label ingress nodes
+### Label ingress nodes
 
 The idea is to label the specific ingress nodes you want to use. This will allow for an easier setup of the external load balancer and create the fastest path to the pod.
 
@@ -14,9 +14,9 @@ The idea is to label the specific ingress nodes you want to use. This will allow
 kubectl label nodes ddc-bc41 ddc-a12c ddc-8393 traefik=ingress
 ```
 
-### deploy traefik
+### Deploy Traefik
 
-deploy
+deploy :
 
 ```bash
 git clone https://github.com/clemenko/traefik_webinar
@@ -37,7 +37,13 @@ service/traefik-ingress-service created
 ingress.networking.k8s.io/traefik-ingress created
 ```
 
-Get dashboard port for traefik and navigate there
+We can take a second to verify that the pods are on the nodes with the labels. Run `kubectl get pods` and double check the nodes.
+
+```bash
+kubectl get pods -n ingress-traefik -o wide
+```
+
+Get dashboard port for traefik and navigate there.
 
 ```bash
 kubectl get svc -n ingress-traefik traefik-ingress-service -o=jsonpath='{.spec.ports[?(@.port==8080)].nodePort}'; echo ""
@@ -47,7 +53,7 @@ The output was port 33981, so navigate to any node in the cluster on port 33981.
 
 ![dashboard](imgs/dashboard.jpg)
 
-### Setup loadblaancer
+### Setup load balancer
 
 Here is an example of running an nginx load balancer on another node. Ideally use your cloud providers' lb serivce. Note the IPs in the conf. They point to the three managers nodes of the cluster. Make sure you change the port for the backend servers to the correct NodePort for Traefik. You can find it with the following command.
 
@@ -71,13 +77,11 @@ worker_processes  auto;
 error_log  /var/log/nginx/error.log warn;
 pid        /var/run/nginx.pid;
 
-
 events {
     worker_connections  1024;
 }
 
 stream {
-
     upstream stream_backend {
         server ucp.dockr.life:XXXX max_fails=3 fail_timeout=2s;
         server ucp2.dockr.life:XXXX max_fails=3 fail_timeout=2s;
@@ -96,9 +100,9 @@ EOF
 docker run --rm -d -p 80:80 -v /root/stream.conf:/etc/nginx/nginx.conf:ro nginx:alpine
 ```
 
-### deploy prometheus and grafana
+### Deploy Prometheus and Grafana
 
-deploy
+Deploy
 
 ```bash
 kubectl apply -f prometheus/.
@@ -158,6 +162,7 @@ You can also check the `routers` that Traefik knows about by exploring the `Rout
 
 ```bash
 kubectl apply -f k8s_all_the_things.yml
+kubectl apply -f whoami.yml
 ```
 
 Now check the Traefik `Router`.

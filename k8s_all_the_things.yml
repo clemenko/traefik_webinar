@@ -135,8 +135,6 @@ kind: Ingress
 metadata:
   name: flask
   namespace: flask
-  annotations:
-#    nginx.ingress.kubernetes.io/rewrite-target: /  
 spec:
   rules:
   - host: app.dockr.life
