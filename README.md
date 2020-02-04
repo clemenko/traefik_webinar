@@ -4,7 +4,7 @@
 
 ### Setup your cluster
 
-I use [github/clemenko/ucp](https://github.com/clemenko/ucp) for building Docker Enterprise. Honestly any k8s distribution should work.
+I use [github/clemenko/ucp](https://github.com/clemenko/ucp) for building Docker Enterprise. Honestly any k8s distribution should work. All my hosting is done on [DigitalOcean](http://digitlocean.com). They Rock!
 
 ### Label ingress nodes
 
@@ -55,13 +55,15 @@ The output was port 33981, so navigate to any node in the cluster on port 33981.
 
 ### Setup load balancer
 
-Here is an example of running an nginx load balancer on another node. Ideally use your cloud providers' lb serivce. Note the IPs in the conf. They point to the three managers nodes of the cluster. Make sure you change the port for the backend servers to the correct NodePort for Traefik. You can find it with the following command.
+For the webinar I am going to use [DigitalOcean](http://digitlocean.com) again.
+
+Another option is to setup a node to run nginx as a load balancer. Ideally use your cloud providers' lb serivce. Note the IPs in the conf. They point to the three managers nodes of the cluster. Make sure you change the port for the backend servers to the correct NodePort for Traefik. You can find it with the following command.
 
 ```bash
 kubectl get svc -n ingress-traefik traefik-ingress-service -o=jsonpath='{.spec.ports[?(@.port==80)].nodePort}'; echo ""
 ```
 
-And then the setup itself.
+And then the setup itself for Nginx.
 
 ```bash
 yum install -y yum-utils vim
