@@ -14,6 +14,51 @@ source ./env.sh
 
 One thing to note is that I store all the hosts names and ips in a file called `hosts.txt`. This allows me to do some fun stuff.
 
+### Setup External Load Balancer
+
+Ideally use your cloud providers' lb serivce. For the webinar I am going to use [DigitalOcean](http://digitlocean.com) again. Another option is to setup a node to run nginx as a load balancer. Below is a typical config for setting up Nginx as a TCP router. This is one of the easiest way to setup a load balancer if you do not have access to one from you infrastructure.
+
+```bash
+yum install -y yum-utils vim
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+yum install docker-ce -y
+systemctl start docker
+systemctl enable docker
+
+cat << EOF >> stream.conf
+user  nginx;
+worker_processes  auto;
+
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+
+events {
+    worker_connections  1024;
+}
+
+stream {
+    upstream stream_backend {
+        server worker1.dockr.life:33333 max_fails=3 fail_timeout=2s;
+        server worker2.dockr.life:33333 max_fails=3 fail_timeout=2s;
+        server worker3.dockr.life:33333 max_fails=3 fail_timeout=2s;
+    }
+
+    server {
+        listen        80;
+        proxy_pass    stream_backend;
+        proxy_timeout 3s;
+        proxy_connect_timeout 1s;
+    }
+}
+EOF
+
+docker run --rm -d -p 80:80 -v /root/stream.conf:/etc/nginx/nginx.conf:ro nginx:alpine
+```
+
+### Setup DNS
+
+Having a dynamic ingress controller allows the use of a wildcard DNS entry. For this talk we have a wildcard CNAME pointing to the IP of the load balancer. This will allow any app to work on the `dockr.life` domains. This should make sense when we start deploying apps.
+
 ### Label Ingress Nodes
 
 The idea is to label the specific ingress nodes you want to use. This will allow for an easier setup of the external load balancer and create the fastest path to the pod.
@@ -105,50 +150,7 @@ Now we can navigate to any one of the three worker nodes on that port.
 
 ![dashboard](imgs/dashboard.jpg)
 
-### Setup External Load Balancer
-
-Ideally use your cloud providers' lb serivce. For the webinar I am going to use [DigitalOcean](http://digitlocean.com) again. Another option is to setup a node to run nginx as a load balancer. Below is a typical config for setting up Nginx as a TCP router. This is one of the easiest way to setup a load balancer if you do not have access to one from you infrastructure.
-
-```bash
-yum install -y yum-utils vim
-yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-yum install docker-ce -y
-systemctl start docker
-systemctl enable docker
-
-cat << EOF >> stream.conf
-user  nginx;
-worker_processes  auto;
-
-error_log  /var/log/nginx/error.log warn;
-pid        /var/run/nginx.pid;
-
-events {
-    worker_connections  1024;
-}
-
-stream {
-    upstream stream_backend {
-        server worker1.dockr.life:33333 max_fails=3 fail_timeout=2s;
-        server worker2.dockr.life:33333 max_fails=3 fail_timeout=2s;
-        server worker3.dockr.life:33333 max_fails=3 fail_timeout=2s;
-    }
-
-    server {
-        listen        80;
-        proxy_pass    stream_backend;
-        proxy_timeout 3s;
-        proxy_connect_timeout 1s;
-    }
-}
-EOF
-
-docker run --rm -d -p 80:80 -v /root/stream.conf:/etc/nginx/nginx.conf:ro nginx:alpine
-```
-
-### Setup DNS
-
-Having a dynamic ingress controller allows the use of a wildcard DNS entry. For this talk we have a wildcard CNAME pointing to the IP of the load balancer. This will allow any app to work on the `dockr.life` domains. This should make sense when we start deploying apps.
+OR use Traafik itself to route to the dashboard at [traefik.dockr.life](http://traefik.dockr.life/)!
 
 ### Deploy Prometheus and Grafana
 

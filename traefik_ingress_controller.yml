@@ -165,15 +165,12 @@ kind: Ingress
 metadata:
   name: traefik-ingress
   namespace: ingress-traefik
-  annotations:
-    kubernetes.io/ingress.class: traefik
-    traefik.ingress.kubernetes.io/rule-type: PathPrefix
 spec:
   rules:
     - host: traefik.dockr.life
       http:
         paths:
-        - path: /api || /dashboard
+        - path: /
           backend:
             serviceName: traefik-ingress-service
             servicePort: 8080
