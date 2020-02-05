@@ -222,7 +222,7 @@ Now that we have a few apps deployed we should take a quick look at how to get T
 
 ```yaml
 apiVersion: networking.k8s.io/v1beta1
-* Ingress
+kind: Ingress
 metadata:
   name: whoami
   namespace: whoami
@@ -244,3 +244,9 @@ Let's take a look at how [StackRox](https://stackrox.com) can add more observabi
 ## Caveats
 
 For this demo I am not using state-full storage. Typically you will want to use the best storage solution from your hosting provider. I am also not covering Let's Encrypt or other TLS situations.
+
+## Docs
+
+Please go read the [Traefik Doc](https://andyc.info/traefik).
+
+Also they have a fantastic forum at [https://community.containo.us/c/traefik/5](https://community.containo.us/c/traefik/5).
