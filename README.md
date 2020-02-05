@@ -2,17 +2,27 @@
 
 ## Setup and Install
 
-### Setup your cluster
+### Setup cluster
 
 I use [github/clemenko/ucp](https://github.com/clemenko/ucp) for building Docker Enterprise. Honestly any k8s distribution should work. All my hosting is done on [DigitalOcean](http://digitlocean.com). They Rock!
+
+Since I am using Docker Enterprise I need to source the client bundle to start talking to the cluster. 
+
+```bash
+source ./env.sh
+```
+
+One thing to note is that I store all the hosts names and ips in a file called `hosts.txt`. This allows me to do some fun stuff.
 
 ### Label Ingress Nodes
 
 The idea is to label the specific ingress nodes you want to use. This will allow for an easier setup of the external load balancer and create the fastest path to the pod.
 
 ```bash
-kubectl label nodes ddc-bc41 ddc-a12c ddc-8393 traefik=ingress
+kubectl label nodes $(cat hosts.txt |tail -3|awk '{printf $2" "}') traefik=ingress
 ```
+
+Basically I am labeling the three workers in the cluster. That label is then referenced as an `nodeSelector` in the yaml.
 
 ### Deploy Traefik
 
@@ -43,27 +53,19 @@ We can take a second to verify that the pods are on the nodes with the labels. R
 kubectl get pods -n ingress-traefik -o wide
 ```
 
-Get dashboard port for traefik and navigate there.
+The ports are set to:
 
-```bash
-kubectl get svc -n ingress-traefik traefik-ingress-service -o=jsonpath='{.spec.ports[?(@.port==8080)].nodePort}'; echo ""
-```
+* Dashboard : 33380
+* Web : 33333
+* Secure : 33443
 
-The output was port 33981, so navigate to any node in the cluster on port 33981.
+Now we can navigate to any of the three worker nodes on that port.
 
 ![dashboard](imgs/dashboard.jpg)
 
-### Setup load balancer
+### Setup External Load Balancer
 
-For the webinar I am going to use [DigitalOcean](http://digitlocean.com) again.
-
-Another option is to setup a node to run nginx as a load balancer. Ideally use your cloud providers' lb serivce. Note the IPs in the conf. They point to the three managers nodes of the cluster. Make sure you change the port for the backend servers to the correct NodePort for Traefik. You can find it with the following command.
-
-```bash
-kubectl get svc -n ingress-traefik traefik-ingress-service -o=jsonpath='{.spec.ports[?(@.port==80)].nodePort}'; echo ""
-```
-
-And then the setup itself for Nginx.
+Ideally use your cloud providers' lb serivce. For the webinar I am going to use [DigitalOcean](http://digitlocean.com) again. Another option is to setup a node to run nginx as a load balancer. Below is a typical config for setting up Nginx as a TCP router. This is one of the easiest way to setup a load balancer if you do not have access to one from you infrastructure.
 
 ```bash
 yum install -y yum-utils vim
@@ -85,9 +87,9 @@ events {
 
 stream {
     upstream stream_backend {
-        server ucp.dockr.life:XXXX max_fails=3 fail_timeout=2s;
-        server ucp2.dockr.life:XXXX max_fails=3 fail_timeout=2s;
-        server ucp3.dockr.life:XXXX max_fails=3 fail_timeout=2s;
+        server worker1.dockr.life:33333 max_fails=3 fail_timeout=2s;
+        server worker2.dockr.life:33333 max_fails=3 fail_timeout=2s;
+        server worker3.dockr.life:33333 max_fails=3 fail_timeout=2s;
     }
 
     server {
@@ -102,9 +104,13 @@ EOF
 docker run --rm -d -p 80:80 -v /root/stream.conf:/etc/nginx/nginx.conf:ro nginx:alpine
 ```
 
+### Setup DNS
+
+Having a dynamic ingress controller allows the use of a wildcard DNS entry. For this talk we have a wildcard CNAME pointing to the IP of the load balancer. This will allow any app to work on the `dockr.life` domains. This should make sense when we start deploying apps.
+
 ### Deploy Prometheus and Grafana
 
-Deploy
+Now that we have the load balancer, DNS, and Traefik setup we can deploy a monitoring solution. It is nice to have some metrics and pretty graphs.
 
 ```bash
 kubectl apply -f prometheus/.
@@ -146,7 +152,7 @@ ingress.extensions/prom-ingress created
 configmap/grafana-dashboards created
 ```
 
-Let's look at the grafana dashboard at [grafana.dockr.life](grafana.dockr.life).
+Let's look at the Grafana dashboard at [grafana.dockr.life](grafana.dockr.life). Thanks to the wildcard DNS entry the domain name just works.
 
 The login for grafana is `admin / Pa22word`.
 
@@ -160,7 +166,7 @@ You can also check the `routers` that Traefik knows about by exploring the `Rout
 
 ![routers](imgs/routers.jpg)
 
-### Deploy a few apps
+### Deploy a few more apps
 
 ```bash
 kubectl apply -f k8s_all_the_things.yml
@@ -169,8 +175,10 @@ kubectl apply -f whoami.yml
 
 Now check the Traefik `Router`.
 
-## Check our StackRox
+## Shameless Pitch
+
+Let's take a look at how [StackRox](https://stackrox.com) can add more observability to the infrastructure. Having a security strategy is paramount in today's age.
 
 ## Caveats
 
-For this demo I am not using state-full storage. Typically you will want to use the best storage solution from your hosting provider.
+For this demo I am not using state-full storage. Typically you will want to use the best storage solution from your hosting provider. I am also not covering Let's Encrypt or other TLS situations.

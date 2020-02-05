@@ -118,6 +118,8 @@ spec:
           containerPort: 80
         - name: admin
           containerPort: 8080
+        - name: secure
+          containerPort: 443
         args:
 #        - "--api=true"
         - "--api.insecure=true"
@@ -142,17 +144,23 @@ spec:
   selector:
     k8s-app: traefik-ingress-lb
   type: NodePort
-#  type: LoadBalancer
   ports:
-    - protocol: TCP
-      port: 80
+    - nodePort: 33333
       name: web
-    - protocol: TCP
-      port: 443
-      name: secure
-    - protocol: TCP
+      protocol: TCP
+      port: 80
+      targetPort: 80
+    - nodePort: 33380
+      name: dashboard
+      protocol: TCP
       port: 8080
-      name: admin
+      targetPort: 8080
+    - nodePort: 33443
+      name: secure
+      protocol: TCP
+      port: 443
+      targetPort: 443
+
 ---
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
