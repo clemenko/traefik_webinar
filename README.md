@@ -26,7 +26,31 @@ Basically I am labeling the three workers in the cluster. That label is then ref
 
 ### Deploy Traefik
 
-deploy :
+Before we deploy Traefik we should look at what we are deploying first. At a high level we need the following objects.
+
+* Namespace - For logical separation
+* ServiceAccount - For api access
+* ClusterRole - RBAC role
+* ClusterRoleBinding - RBAC binding
+* DaemonSet - Pod distribution
+* Service - Sevice to bind the pods
+* Ingress - FQDN declaration
+
+We should also look at the Traefik configs. There are a few for prometheus that are important. The most important one is about the provider. `--providers.kubernetesingress=true` tells Traefik to hit the Kubernetes API for discovery.
+
+```yaml
+        - "--api.insecure=true"
+        - "--providers.kubernetesingress=true"
+        - "--entrypoints.web.address=:80"
+        - "--entrypoints.secure.address=:443"
+        - "--metrics.prometheus=true"
+        - "--metrics.prometheus.addEntryPointsLabels=true"
+        - "--metrics.prometheus.addServicesLabels=true"
+        - "--accesslog=true"
+        - "--global.sendAnonymousUsage=false"
+```
+
+If you want to drill into the [traefik_ingress_controller.yml](https://github.com/clemenko/traefik_webinar/blob/master/traefik_ingress_controller.yml) itself feel free. The good news is that if your not that familiar with kubernetes yamls we can simply deploy it.
 
 ```bash
 git clone https://github.com/clemenko/traefik_webinar
@@ -34,7 +58,7 @@ cd traefik_webinar
 kubectl apply -f traefik_ingress_controller.yml
 ```
 
-example :
+Here is what it looks like when deploying.
 
 ```bash
 $ kubectl apply -f traefik_ingress_controller.yml
@@ -186,12 +210,30 @@ You can also check the `routers` that Traefik knows about by exploring the `Rout
 
 ### Deploy a few more apps
 
+Let's deploy a few more apps and check the dashboard.
 ```bash
 kubectl apply -f k8s_all_the_things.yml
 kubectl apply -f whoami.yml
 ```
 
-Now check the Traefik `Router`.
+Now that we have a few apps deployed we should take a quick look at how to get Traefik to recognize the app. In Kubernetes you need the Ingress object. Here is an example from the [whoami.yml](https://github.com/clemenko/traefik_webinar/blob/master/whoami.yml). Notice the `host:` is where you specify the FQDN. Simple right?
+
+```yaml
+apiVersion: networking.k8s.io/v1beta1
+* Ingress
+metadata:
+  name: whoami
+  namespace: whoami
+spec:
+  rules:
+  - host: whoami.dockr.life
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: whoami
+          servicePort: 8000
+```
 
 ## Shameless Pitch
 
