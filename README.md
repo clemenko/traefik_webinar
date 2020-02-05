@@ -37,7 +37,7 @@ kubectl apply -f traefik_ingress_controller.yml
 example :
 
 ```bash
-clemenko@clemenko traefik_webinar % kubectl apply -f traefik_ingress_controller.yml
+$ kubectl apply -f traefik_ingress_controller.yml
 namespace/ingress-traefik created
 serviceaccount/ingress-traefik created
 clusterrole.rbac.authorization.k8s.io/ingress-traefik created
@@ -56,20 +56,28 @@ kubectl get pods -n ingress-traefik -o wide
 Here is the typical output. Make sure the pods are on they correct nodes.
 
 ```bash
-clemenko:clemenko ucp [ucp.dockr.life] $ kubectl get pods -n ingress-traefik -o wide
+$ kubectl get pods -n ingress-traefik -o wide
 NAME                                          READY   STATUS    RESTARTS   AGE   IP                NODE       NOMINATED NODE   READINESS GATES
 traefik-ingress-controller-767d4c68f8-2v64g   1/1     Running   0          52m   192.168.235.129   ddc-a3fe   <none>           <none>
 traefik-ingress-controller-767d4c68f8-kvkd9   1/1     Running   0          52m   192.168.15.129    ddc-977a   <none>           <none>
 traefik-ingress-controller-767d4c68f8-xdkbv   1/1     Running   0          52m   192.168.19.133    ddc-ae3e   <none>           <none>
 ```
 
-The ports are set to:
+We can also check that the service is setup:
+
+```bash
+$ kubectl get svc -n ingress-traefik -o wide
+NAME                      TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)                                     AGE     SELECTOR
+traefik-ingress-service   NodePort   10.96.123.164   <none>        80:33333/TCP,8080:33380/TCP,443:33443/TCP   4m51s   k8s-app=traefik-ingress-lb
+```
+
+To simplify things we have set the ports to:
 
 * Dashboard : 33380
 * Web : 33333
 * Secure : 33443
 
-Now we can navigate to any of the three worker nodes on that port.
+Now we can navigate to any one of the three worker nodes on that port.
 
 ![dashboard](imgs/dashboard.jpg)
 
@@ -129,7 +137,7 @@ kubectl apply -f prometheus/.
 example :
 
 ```bash
-clemenko@clemenko traefik_webinar % kubectl apply -f prometheus/. 
+$ kubectl apply -f prometheus/. 
 clusterrolebinding.rbac.authorization.k8s.io/kube-state-metrics created
 clusterrole.rbac.authorization.k8s.io/kube-state-metrics created
 deployment.apps/kube-state-metrics created
