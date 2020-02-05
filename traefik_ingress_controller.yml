@@ -88,15 +88,16 @@ subjects:
   name: ingress-traefik
   namespace: ingress-traefik
 ---
-kind: Deployment
 apiVersion: apps/v1
+kind: DaemonSet
+#kind: Deployment
 metadata:
   name: traefik-ingress-controller
   namespace: ingress-traefik
   labels:
     k8s-app: traefik-ingress-lb
 spec:
-  replicas: 3
+#  replicas: 3
   selector:
     matchLabels:
       k8s-app: traefik-ingress-lb

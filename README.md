@@ -53,6 +53,16 @@ We can take a second to verify that the pods are on the nodes with the labels. R
 kubectl get pods -n ingress-traefik -o wide
 ```
 
+Here is the typical output. Make sure the pods are on they correct nodes.
+
+```bash
+clemenko:clemenko ucp [ucp.dockr.life] $ kubectl get pods -n ingress-traefik -o wide
+NAME                                          READY   STATUS    RESTARTS   AGE   IP                NODE       NOMINATED NODE   READINESS GATES
+traefik-ingress-controller-767d4c68f8-2v64g   1/1     Running   0          52m   192.168.235.129   ddc-a3fe   <none>           <none>
+traefik-ingress-controller-767d4c68f8-kvkd9   1/1     Running   0          52m   192.168.15.129    ddc-977a   <none>           <none>
+traefik-ingress-controller-767d4c68f8-xdkbv   1/1     Running   0          52m   192.168.19.133    ddc-ae3e   <none>           <none>
+```
+
 The ports are set to:
 
 * Dashboard : 33380
