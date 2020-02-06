@@ -243,7 +243,27 @@ Let's take a look at how [StackRox](https://stackrox.com) can add more observabi
 
 ## HA demo
 
-Let's test killing a node?
+Let's test killing a node? But first we need a curl.
+
+```bash
+#in separate window
+while true; do curl -s --connect-timeout .5 app.dockr.life/info|jq -c; done
+
+#stop docker
+kubectl get pods -n ingress-traefik -o wide
+ssh root@$(cat ../../ucp/hosts.txt | tail -1 | awk '{print $1}') 'systemctl stop docker'
+kubectl get pods -n ingress-traefik -o wide
+```
+
+## Nmap Enforcement
+
+Let's be bad and run `nmap` in a container.
+
+```bash
+kubectl get pod -n flask
+kubectl -n flask exec -it $(kubectl -n flask get pod|grep Running|grep flask|shuf -n1|awk '{print $1}') -- nmap -v -sn 192.168.1.0/24
+kubectl get pod -n flask
+```
 
 ## Caveats
 
