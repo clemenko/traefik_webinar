@@ -143,17 +143,17 @@ spec:
     k8s-app: traefik-ingress-lb
   type: NodePort
   ports:
-    - nodePort: 30333
+    - nodePort: 33333
       name: web
       protocol: TCP
       port: 80
       targetPort: 80
-    - nodePort: 30380
+    - nodePort: 33380
       name: dashboard
       protocol: TCP
       port: 8080
       targetPort: 8080
-    - nodePort: 30443
+    - nodePort: 33443
       name: secure
       protocol: TCP
       port: 443

@@ -241,6 +241,10 @@ spec:
 
 Let's take a look at how [StackRox](https://stackrox.com) can add more observability to the infrastructure. Having a security strategy is paramount in today's age.
 
+## HA demo
+
+Let's test killing a node?
+
 ## Caveats
 
 For this demo I am not using state-full storage. Typically you will want to use the best storage solution from your hosting provider. I am also not covering Let's Encrypt or other TLS situations.
