@@ -241,7 +241,7 @@ spec:
 
 Let's take a look at how [StackRox](https://stackrox.com) can add more observability to the infrastructure. Having a security strategy is paramount in today's age.
 
-## HA demo
+### HA demo
 
 Let's test killing a node? But first we need a curl.
 
@@ -255,7 +255,7 @@ ssh root@$(cat ../../ucp/hosts.txt | tail -1 | awk '{print $1}') 'systemctl stop
 kubectl get pods -n ingress-traefik -o wide
 ```
 
-## Nmap Enforcement
+### Nmap Enforcement
 
 Let's be bad and run `nmap` in a container.
 
